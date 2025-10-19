@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ko"  xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.slim.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <link href="/main.css" rel="stylesheet">
+  <title>Document</title>
+</head>
+<body>
+  <div id="app">
+    <header th:replace="~{/fragment/header.html}">
+    </header>
+    <nav th:replace="~{/fragment/nav.html}">
+    </nav>
+    <main>
+      <section>
+        <input type="hidden" th:value="${post.pno}" id="pno">
+        <table class="table mt-3">
+          <tr>
+            <td>작성일</td>
+            <td th:text="${post.writeTime}"></td>
+          </tr>
+          <tr>
+            <td>글쓴이</td>
+            <td th:text="${post.writer}"></td>
+          </tr>
+          <tr>
+            <td>제목</td>
+            <td th:text="${post.title}"></td>
+          </tr>
+          <tr>
+            <td colspan="2">
+              <div style="float:right;">
+              <button type="button" class="btn btn-primary" id="good_btn" disabled="disabled">추천<span class="badge bg-dark" id="good_cnt"></span></button>
+              <button type="button" class="btn btn-success" id="b" disabled="disabled">조회 <span class="badge bg-danger" th:text="${post.readCnt}"></span></button>
+              <button type="button" class="btn btn-danger" id="bad_btn" disabled="disabled">비추<span class="badge bg-dark"></span></button>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2">
+              <div id="content" th:utext="${post.content}" style="min-height:400px;"></div>
+            </td>
+          </tr>
+        </table>
+        <!--  본문, 갱신 버튼, 삭제 버튼 출력 영역 -->
+        <div id="btnArea" th:if="${post.writer == #authentication.name}">
+          <button type="button" class="btn btn-success" id="update">변경</button>
+          <button type="button" class="btn btn-warning" id="delete">삭제</button>
+        </div>
+        <hr>
+        <div class="mb-3 mt-3" th:if="${post.writer == #authentication.name}">
+          <textarea class="form-control" rows="5" id="comment-content" style="resize:none;"></textarea>
+        </div>
+        <div class="mb-3 mt-3" th:if="${post.writer != #authentication.name}">
+          <textarea class="form-control" rows="5" disabled placeholder="댓글을 작성하려면 로그인 해주세요" style="resize:none;"></textarea>
+        </div>
+        <div id="commentBtnArea" class="hide">
+          <button id="add_comment" class="btn btn-primary" onclick="doWriteComment();">댓글 추가</button>
+        </div>
+        <div id="comments" class="mt-3 mb-3" style="border-top: 0.8px solid rgb(221,221,221);">
+          <div th:each="comment:${post.comments}" style="border-bottom: 0.8px solid rgb(221,221,221);">
+            <div style="overflow:hidden;" class="mt-1 mb-1">
+              <div th:text="${comment.writer}" style="float:left; font-weight:bold;"></div>
+              <div th:text="${comment.writeTime}" style="float:right;"></div>
+            </div>
+            <div th:text="${comment.content}"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer th:replace="~{/fragment/footer.html}">
+    </footer>
+  </div>
+  <script>
+    function doWriteComment() {
+      const pno = $('#pno').val();
+      const content = $('#comment-content').val();
+      const params = {pno:pno, content: content};
+      axios.post('/api/comments/new', new URLSearchParams(params));
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+#app {
+  width: 1000px;
+  margin: 0 auto;
+}
+
+header, nav, footer {
+  height: 50px;
+  line-height: 50px;
+  text-align: center;
+}
+
+header {
+  border: 1px solid red;
+  font-size: 1.2em;
+  letter-spacing: 1em;
+}
+
+footer {
+  border: 1px solid red;
+}
+
+nav {
+  background-color: rgb(100,100,100);
+}
+
+nav li {
+  list-style:none;
+  display: inline-block;
+  width: 100px;
+}
+
+nav li a {
+  color: white;
+}
+
+section {
+  min-height: 850px;
+}
+
+section h1 {
+  text-align: center;
+}
+
+.fail {
+  color: red;
+  font-size: 0.8em;
+}

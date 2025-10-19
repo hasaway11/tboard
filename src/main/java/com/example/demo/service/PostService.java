@@ -1,0 +1,90 @@
+package com.example.demo.service;
+
+import com.example.demo.dao.*;
+import com.example.demo.dto.*;
+import com.example.demo.entity.*;
+import com.example.demo.exception.*;
+import com.example.demo.util.*;
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.stereotype.*;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
+
+@Service
+public class PostService {
+  @Autowired
+  private PostDao postDao;
+  @Autowired
+  private CommentDao commentDao;
+  @Autowired
+  private PostMemberGoodDao postMemberGoodDao;
+  private static final long BLOCK_SIZE = 5;
+
+  public PostDto.Page list(long pageno, long pagesize) {
+    long totalcount = postDao.count();
+    List<Post> posts = postDao.findAll(pageno, pagesize);
+    return TBoardUtil.getPage(pageno, pagesize, BLOCK_SIZE, totalcount, posts);
+  }
+
+  public PostDto.Read read(long pno, String loginId) {
+    PostDto.Read post = postDao.findByPnoWithComments(pno).orElseThrow(PostNotFoundException::new);
+    if(loginId!=null && !post.getWriter().equals(loginId)) {
+      postDao.increaseReadCnt(pno);
+      post.setReadCnt(post.getReadCnt()+1);
+    }
+    return post;
+  }
+
+  public long write(PostDto.Write dto, String loginId) {
+    Post post = dto.toEntity(loginId);
+    postDao.insert(post);
+    return post.getPno();
+  }
+
+  public void update(PostDto.Update dto, String loginId) {
+    // 1. 글이 없으면 예외
+    Post post = postDao.findByPno(dto.getPno()).orElseThrow(PostNotFoundException::new);
+    // 2. 작업자가 글쓴이가 아니면 예외
+    if(!post.getWriter().equals(loginId))
+      throw new JobFailException("잘못된 작업입니다");
+    postDao.updateByPno(dto);
+  }
+
+  public void delete(long pno, String loginId) {
+    Post post = postDao.findByPno(pno).orElseThrow(PostNotFoundException::new);
+    if(!post.getWriter().equals(loginId))
+      throw new JobFailException("잘못된 작업있니다");
+    postDao.deleteByPno(pno);
+  }
+
+  @Transactional
+  public long good(long pno, String loginId) {
+    // 비로그인이면 추천할 수 없다 -> @PreAuthrize()로 필터링되서 여기까지 안온다(X)
+    // 1. 글이 없으면 예외처리
+    // 2. 자기가 작성한 글이면 예외처리
+    // 3. 이미 추천한 글이면 예외 처리
+    // 4. 추천하지 않은 글이면 추천 후 새로운 추천수를 리턴
+    Post post = postDao.findByPno(pno).orElseThrow(PostNotFoundException::new);
+    if(post.getWriter().equals(loginId))
+      throw new JobFailException("자신의 글은 추천할 수 없습니다");
+    boolean isRecommended = postMemberGoodDao.existsByPnoAndUsername(pno, loginId);
+    if(isRecommended)
+      throw new JobFailException("이미 추천했습니다");
+    postMemberGoodDao.save(pno, loginId);
+    postDao.increaseGoodCntByPno(pno);
+    return postDao.findGoodCntByPno(pno).get();
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
