@@ -15,9 +15,8 @@ public class PostDto {
   @AllArgsConstructor
   public static class Page {
     private long prev;
-    private long start;
-    private long end;
     private long next;
+    private List<Long> pages;
     private long pageno;
     private List<Post> posts;
   }

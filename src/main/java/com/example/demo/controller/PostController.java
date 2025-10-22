@@ -41,14 +41,14 @@ public class PostController {
   @PostMapping("/post/write")
   public ModelAndView write(@ModelAttribute @Valid PostDto.Write dto, Principal principal) {
     long bno = postService.write(dto, principal.getName());
-    return new ModelAndView("redirect:/post/read?bno=" + bno);
+    return new ModelAndView("redirect:/post/read?pno=" + bno);
   }
 
   @GetMapping("/post/read")
   public ModelAndView read(@RequestParam @NotNull(message="글번호는 필수입력입니다") Long pno, Principal principal) {
     String loginId = principal==null? null : principal.getName();
     PostDto.Read post =  postService.read(pno, loginId);
-    return new ModelAndView("post/read").addObject("post", post);
+    return new ModelAndView("post/read").addObject("post", post).addObject("isLogin", loginId!=null).addObject("isWriter", post.getWriter().equals(loginId));
   }
 
   @GetMapping("/post/update")

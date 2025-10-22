@@ -4,23 +4,58 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.20/summernote-bs5.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://code.jquery.com/jquery-3.7.1.slim.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.20/summernote-bs5.min.js"></script>
   <link href="/main.css" rel="stylesheet">
   <title>Document</title>
 </head>
 <body>
-  <div id="app">
-    <header th:replace="~{/fragment/header.html}">
-    </header>
-    <nav th:replace="~{/fragment/nav.html}">
-    </nav>
-    <main>
-      <section>
-      </section>
-    </main>
-    <footer th:replace="~{/fragment/footer.html}">
-    </footer>
-  </div>
+<div id="app">
+  <header th:replace="~{/fragment/header.html}">
+  </header>
+  <nav th:replace="~{/fragment/nav.html}">
+  </nav>
+  <main>
+    <section>
+      <form action="/post/update" method="post" id="update-form">
+        <div class="mt-3 mb-3">
+          <label class="form-label">제목:</label>
+          <input class="form-control" name="title" id="title" th:value="${post.title}">
+        </div>
+        <div class="mt-3 mb-3">
+          <label class="form-label">내용:</label>
+          <textarea id="summernote" name="content" th:utext="${post.content}"></textarea>
+        </div>
+        <div class="mt-3 mb-3">
+          <button type="button" class="btn btn-primary" onclick="doUpdate();">변경하기</button>
+        </div>
+      </form>
+    </section>
+  </main>
+  <footer th:replace="~{/fragment/footer.html}">
+  </footer>
+  <script>
+    $(function() {
+      $('#summernote').summernote({
+        height: 600,
+        disableResizeEditor: true
+      });
+    });
+
+    function doWrite() {
+      const title = $('#title').val();
+      const content = $('#summernote').summernote('code');
+      const $content = $(content);
+      const isContentEmpty = $content.text().trim().length==='' && $content.find('img').length===0;
+      if(title==='' || isContentEmpty) {
+        alert('제목과 내용을 입력하세요');
+        return;
+      }
+      $('#write-form').submit();
+    }
+  </script>
+</div>
 </body>
 </html>

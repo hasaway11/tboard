@@ -33,7 +33,11 @@ public class TBoardUtil {
       end = numberOfPages;
       next = 0;
     }
-    return new PostDto.Page(prev, start, end, next, pageno, posts);
+
+    List<Long> pages = new ArrayList<>();
+    for(long i=start; i<=end; i++)
+      pages.add(i);
+    return new PostDto.Page(prev, next, pages, pageno, posts);
   }
 
   private static final String PROFLILE_FOLDER = System.getProperty("user.dir") + File.separator + "upload"

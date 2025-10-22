@@ -56,7 +56,7 @@
               <li th:if="${page.prev>0}" class="page-item">
                 <a class="page-link" th:href="${'/?pageno='+page.prev}">이전으로</a>
               </li>
-              <li th:each="pageno:${#numbers.sequence(page.start, page.end)}" th:classappend="${page.pageno==pageno}?'active': ''">
+              <li th:each="pageno:${page.pages}" th:classappend="${page.pageno==pageno}?'active': ''">
                 <a class="page-link" th:text="${pageno}" th:href="'/?pageno='+pageno"></a>
               </li>
               <li th:if="${page.next>0}" class="page-item">
