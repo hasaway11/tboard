@@ -20,10 +20,10 @@ public interface PostDao {
   @Select("select * from post where pno=#{pno}")
   Optional<Post> findByPno(long pno);
 
-  Optional<PostDto.Read> findByPnoWithComments(long pno);
+  Optional<PostDto.PostResponse> findByPnoWithComments(long pno);
 
   @Update("update post set title=#{title}, content=#{content} where pno=#{pno}")
-  long updateByPno(PostDto.Update dto);
+  long updateByPno(PostDto.UpdateRequest dto);
 
   @Delete("delete from post where pno=#{pno}")
   long deleteByPno(long pno);

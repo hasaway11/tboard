@@ -13,17 +13,17 @@ public class PostDto {
   // 페이징 출력 DTO
   @Data
   @AllArgsConstructor
-  public static class Page {
+  public static class PageResponse {
+    private long pageno;
     private long prev;
     private long next;
     private List<Long> pages;
-    private long pageno;
     private List<Post> posts;
   }
 
   // 글을 작성하는 DTO
   @Data
-  public static class Write {
+  public static class CreateRequest {
     @NotEmpty(message="제목을 입력하세요")
     private String title;
     @NotEmpty(message="내용을 입력하세요")
@@ -36,7 +36,7 @@ public class PostDto {
 
   // 글 변경 DTO
   @Data
-  public static class Update {
+  public static class UpdateRequest {
     @NotNull(message="글번호가 없습니다")
     private Long pno;
     @NotEmpty(message="제목을 입력하세요")
@@ -48,7 +48,7 @@ public class PostDto {
   @Data
   @NoArgsConstructor
   @AllArgsConstructor
-  public static class Read {
+  public static class PostResponse {
     private long pno;
     private String title;
     private String content;

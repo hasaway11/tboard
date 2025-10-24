@@ -9,7 +9,7 @@ import java.time.*;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CommentDto {
     @Data
-    public static class Create {
+    public static class CreateRequest {
         @NotNull(message="글번호가 없습니다")
         private Long pno;
         @NotEmpty(message="내용을 입력하세요")
@@ -21,10 +21,10 @@ public class CommentDto {
     }
 
     @Data
-    public static class Delete {
+    public static class DeleteRequest {
         @NotNull(message="댓글 번호가 없습니다")
-        private Integer cno;
+        private Long cno;
         @NotNull(message="글번호가 없습니다")
-        private Integer pno;
+        private Long pno;
     }
 }

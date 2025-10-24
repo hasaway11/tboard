@@ -19,12 +19,12 @@ public class CommentController {
   private CommentService service;
 
   @PostMapping("/api/comments/new")
-  public ResponseEntity<List<Comment>> write(@Valid CommentDto.Create dto, Principal principal) {
+  public ResponseEntity<List<Comment>> write(@Valid CommentDto.CreateRequest dto, Principal principal) {
     return ResponseEntity.ok(service.write(dto, principal.getName()));
   }
 
   @DeleteMapping("/api/comments")
-  public ResponseEntity<List<Comment>> delete(@Valid CommentDto.Delete dto, Principal principal) {
+  public ResponseEntity<List<Comment>> delete(@Valid CommentDto.DeleteRequest dto, Principal principal) {
     List<Comment> comments =  service.delete(dto, principal.getName());
     return ResponseEntity.ok(comments);
   }

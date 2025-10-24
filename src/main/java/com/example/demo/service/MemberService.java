@@ -36,7 +36,7 @@ public class MemberService {
   }
 
 
-  public boolean checkUsername(MemberDto.UsernameCheck dto) {
+  public boolean checkUsername(MemberDto.UsernameCheckRequest dto) {
     return !memberDao.existsByUsername(dto.getUsername());
   }
 
@@ -54,7 +54,7 @@ public class MemberService {
     }
   }
 
-  public void join(MemberDto.Create dto) {
+  public void join(MemberDto.CreateRequest dto) {
     // 1. Guard Clause: 아이디 중복 확인 및 즉시 종료
     if(memberDao.existsByUsername(dto.getUsername()))
       throw new JobFailException("가입처리가 불가능한 아이디입니다");
@@ -79,7 +79,7 @@ public class MemberService {
     return memberDao.findUsernameByEmail(email);
   }
 
-  public void resetPassword(MemberDto.ResetPassword dto) {
+  public void resetPassword(MemberDto.ResetPasswordRequest dto) {
     Member member = memberDao.findByUsername(dto.getUsername()).orElseThrow(MemberNotFoundException::new);
     String newPassword = RandomStringUtils.secure().nextAlphanumeric(10);
     memberDao.updatePasswordByUsername(dto.getUsername(), encoder.encode(newPassword));
@@ -88,7 +88,7 @@ public class MemberService {
     sendMail("admin@icia.com", member.getEmail(), "임시비밀번호", html);
   }
 
-  public MemberDto.Read read(String loginId) {
+  public MemberDto.MemberResponse read(String loginId) {
     return memberDao.findByUsername(loginId).orElseThrow(MemberNotFoundException::new).toRead();
   }
 
@@ -103,7 +103,7 @@ public class MemberService {
       throw new JobFailException("이미 활성화되었거나 잘못된 확인 코드입니다");
   }
 
-  public boolean updatePassword(MemberDto.PasswordChange dto, String loginId) {
+  public boolean updatePassword(MemberDto.PasswordChangeRequest dto, String loginId) {
     String encodedPassword = memberDao.findPasswordByUsername(loginId);
     if(!encoder.matches(dto.getCurrentPassword(), encodedPassword))
       return false;

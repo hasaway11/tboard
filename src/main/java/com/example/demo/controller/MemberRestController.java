@@ -22,7 +22,7 @@ public class MemberRestController {
 
   @PreAuthorize("isAnonymous()")
   @GetMapping("/api/member/check-username")
-  public ResponseEntity<String> checkUsername(@ModelAttribute @Valid MemberDto.UsernameCheck dto) {
+  public ResponseEntity<String> checkUsername(@ModelAttribute @Valid MemberDto.UsernameCheckRequest dto) {
     boolean result = memberService.checkUsername(dto);
     if(result)
       return ResponseEntity.ok("사용가능합니다");
@@ -31,7 +31,7 @@ public class MemberRestController {
 
   @PreAuthorize("isAnonymous()")
   @PostMapping("/api/member/new")
-  public ResponseEntity<Void> signup(@ModelAttribute @Valid MemberDto.Create dto) {
+  public ResponseEntity<Void> signup(@ModelAttribute @Valid MemberDto.CreateRequest dto) {
     memberService.join(dto);
     return ResponseEntity.ok(null);
   }
@@ -45,7 +45,7 @@ public class MemberRestController {
 
   @PreAuthorize("isAnonymous()")
   @PostMapping("/api/member/password")
-  public ResponseEntity<String> resetPassword(@ModelAttribute @Valid MemberDto.ResetPassword dto) {
+  public ResponseEntity<String> resetPassword(@ModelAttribute @Valid MemberDto.ResetPasswordRequest dto) {
     memberService.resetPassword(dto);
     return ResponseEntity.ok("임시비밀번호를 가입 이메일로 보냈습니다");
   }

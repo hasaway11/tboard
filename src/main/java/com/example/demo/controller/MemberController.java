@@ -84,7 +84,7 @@ public class MemberController {
 
   @PreAuthorize("isAuthenticated()")
   @PostMapping("/member/update-password")
-  public ModelAndView updatePassword(@ModelAttribute @Valid MemberDto.PasswordChange dto, Principal principal) {
+  public ModelAndView updatePassword(@ModelAttribute @Valid MemberDto.PasswordChangeRequest dto, Principal principal) {
     memberService.updatePassword(dto, principal.getName());
     return new ModelAndView("redirect:/");
   }

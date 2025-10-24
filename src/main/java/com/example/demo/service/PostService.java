@@ -4,7 +4,6 @@ import com.example.demo.dao.*;
 import com.example.demo.dto.*;
 import com.example.demo.entity.*;
 import com.example.demo.exception.*;
-import com.example.demo.util.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.stereotype.*;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,16 +18,36 @@ public class PostService {
   private CommentDao commentDao;
   @Autowired
   private PostMemberGoodDao postMemberGoodDao;
-  private static final long BLOCK_SIZE = 5;
+  private static final long POSTS_PER_PAGE = 10;
+  private static final long PAGES_PER_BLOCK = 5;
 
-  public PostDto.Page list(long pageno, long pagesize) {
-    long totalcount = postDao.count();
-    List<Post> posts = postDao.findAll(pageno, pagesize);
-    return TBoardUtil.getPage(pageno, pagesize, BLOCK_SIZE, totalcount, posts);
+  private PostDto.PageResponse toPageResponse(long pageno, long pagesize, long blocksize, long totalcount, List<Post> posts) {
+    long numberOfPages = (totalcount-1)/pagesize;
+
+    long prev = (pageno-1)/blocksize * blocksize;
+    long start = prev + 1;
+    long end = prev + blocksize;
+    long next = end + 1;
+
+    if(end>=numberOfPages) {
+      end = numberOfPages;
+      next = 0;
+    }
+
+    List<Long> pages = new ArrayList<>();
+    for(long i=start; i<=end; i++)
+      pages.add(i);
+    return new PostDto.PageResponse(pageno, prev, next, pages, posts);
   }
 
-  public PostDto.Read read(long pno, String loginId) {
-    PostDto.Read post = postDao.findByPnoWithComments(pno).orElseThrow(PostNotFoundException::new);
+  public PostDto.PageResponse list(long pageno, long pagesize) {
+    long totalcount = postDao.count();
+    List<Post> posts = postDao.findAll(pageno, pagesize);
+    return toPageResponse(pageno, POSTS_PER_PAGE, PAGES_PER_BLOCK, totalcount, posts);
+  }
+
+  public PostDto.PostResponse read(long pno, String loginId) {
+    PostDto.PostResponse post = postDao.findByPnoWithComments(pno).orElseThrow(PostNotFoundException::new);
     if(loginId!=null && !post.getWriter().equals(loginId)) {
       postDao.increaseReadCnt(pno);
       post.setReadCnt(post.getReadCnt()+1);
@@ -36,19 +55,19 @@ public class PostService {
     return post;
   }
 
-  public long write(PostDto.Write dto, String loginId) {
+  public long write(PostDto.CreateRequest dto, String loginId) {
     Post post = dto.toEntity(loginId);
     postDao.insert(post);
     return post.getPno();
   }
 
-  public void update(PostDto.Update dto, String loginId) {
+  public void update(PostDto.UpdateRequest dto, String loginId) {
     // 1. 글이 없으면 예외
     Post post = postDao.findByPno(dto.getPno()).orElseThrow(PostNotFoundException::new);
     // 2. 작업자가 글쓴이가 아니면 예외
     if(!post.getWriter().equals(loginId))
       throw new JobFailException("잘못된 작업입니다");
-    postDao.updateByPno(dto);
+    postDao.updateByPno(dto;
   }
 
   public void delete(long pno, String loginId) {
@@ -76,15 +95,3 @@ public class PostService {
     return postDao.findGoodCntByPno(pno).get();
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
