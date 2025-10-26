@@ -27,7 +27,7 @@ public interface MemberDao {
   @Update("update member set failed_attempts=failed_attempts+1 where username=#{username}")
   long increaseFailedAttemptsByUsername(String username);
 
-  @Update("update member set is_lock=1 where username=#{username}")
+  @Update("update member set is_lock=1, failed_attempts=5 where username=#{username}")
   long lockAccountByUsername(String username);
 
   @Update("update member set failed_attempts=0 where username=#{username}")
@@ -35,9 +35,6 @@ public interface MemberDao {
 
   @Delete("delete from member where username=#{username}")
   long deleteByUsername(String username);
-
-  @Update("update member set is_lock=0, code=null where code=#{code}")
-  long activateAccountByCode(String code);
 
   @Select("select password from member where username=#{username}")
   String findPasswordByUsername(String username);

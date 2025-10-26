@@ -36,7 +36,6 @@ public class TBoardAuthenticationFailureHandler implements AuthenticationFailure
           String msg = "로그인에 " + (member.getFailedAttempts()+1) + "회 실패했습니다. 5회 실패 시 계정이 비활성화됩니다";
           session.setAttribute("msg", msg);
         } else {
-          memberDao.increaseFailedAttemptsByUsername(member.getUsername());
           memberDao.lockAccountByUsername(member.getUsername());
           session.setAttribute("msg", "로그인에 5회 실패해 계정이 비활성화되었습니다. 관리자에게 문의하세요");
         }

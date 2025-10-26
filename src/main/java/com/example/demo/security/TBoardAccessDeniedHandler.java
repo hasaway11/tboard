@@ -13,8 +13,8 @@ import java.io.*;
 public class TBoardAccessDeniedHandler implements AccessDeniedHandler {
   @Override
   public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
-    request.setAttribute("msg", "작업을 수행할 수 없습니다");
-    RequestDispatcher dispatcher = request.getRequestDispatcher("/error");
-    dispatcher.forward(request, response);
+    HttpSession session = request.getSession();
+    session.setAttribute("msg", "작업 권한이 없습니다");
+    response.sendRedirect("/member/login");
   }
 }

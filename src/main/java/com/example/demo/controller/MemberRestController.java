@@ -14,7 +14,6 @@ import org.springframework.web.multipart.*;
 import java.security.*;
 import java.util.*;
 
-@Validated
 @RestController
 public class MemberRestController {
   @Autowired
@@ -31,7 +30,7 @@ public class MemberRestController {
 
   @PreAuthorize("isAnonymous()")
   @PostMapping("/api/member/new")
-  public ResponseEntity<Void> signup(@ModelAttribute @Valid MemberDto.CreateRequest dto) {
+  public ResponseEntity<Void> join(@ModelAttribute @Valid MemberDto.CreateRequest dto) {
     memberService.join(dto);
     return ResponseEntity.ok(null);
   }

@@ -19,19 +19,17 @@
   </nav>
   <main>
     <section>
-      <form action="/post/update" method="post" id="update-form">
-        <div class="mt-3 mb-3">
-          <label class="form-label">제목:</label>
-          <input class="form-control" name="title" id="title" th:value="${post.title}">
-        </div>
-        <div class="mt-3 mb-3">
-          <label class="form-label">내용:</label>
-          <textarea id="summernote" name="content" th:utext="${post.content}"></textarea>
-        </div>
-        <div class="mt-3 mb-3">
-          <button type="button" class="btn btn-primary" onclick="doUpdate();">변경하기</button>
-        </div>
-      </form>
+      <div class="mt-3 mb-3">
+        <label class="form-label">제목:</label>
+        <input class="form-control" name="title" id="title" th:value="${post.title}">
+      </div>
+      <div class="mt-3 mb-3">
+        <label class="form-label">내용:</label>
+        <textarea id="summernote" name="content" th:utext="${post.content}"></textarea>
+      </div>
+      <div class="mt-3 mb-3">
+        <button type="button" class="btn btn-primary" onclick="doUpdate();">변경하기</button>
+      </div>
     </section>
   </main>
   <footer th:replace="~{/fragment/footer.html}">
@@ -43,8 +41,12 @@
         disableResizeEditor: true
       });
     });
-
-    function doWrite() {
+  </script>
+  <script th:inline="javascript">
+    const pno = [[${post.pno}]];
+  </script>
+  <script>
+    async function doUpdate() {
       const title = $('#title').val();
       const content = $('#summernote').summernote('code');
       const $content = $(content);
@@ -53,7 +55,14 @@
         alert('제목과 내용을 입력하세요');
         return;
       }
-      $('#write-form').submit();
+
+      const params = {pno, title, content};
+      try {
+        await axios.post("/post/update", new URLSearchParams(params));
+        alert("글을 변경했습니다");
+      } catch(err) {
+        alert("작업 중 오류가 발생했습니다");
+      }
     }
   </script>
 </div>

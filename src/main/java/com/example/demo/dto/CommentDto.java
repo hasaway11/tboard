@@ -27,4 +27,12 @@ public class CommentDto {
         @NotNull(message="글번호가 없습니다")
         private Long pno;
     }
+
+    @Data
+    public static class CommentResponse {
+      private long cno;
+      private String content;
+      private String writer;
+      private String writeTime;
+    }
 }

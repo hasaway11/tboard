@@ -1,15 +1,22 @@
 package com.example.demo.dto;
 
 import com.example.demo.entity.*;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
-import java.time.*;
 import java.util.*;
 
 // PostDto는 Dto들을 담는 클래스다 -> Dto 클래스 개수 줄여 PostDto.Pages, PostDto.Create....
 public class PostDto {
+  @Data
+  public static class PostList {
+    private long pno;
+    private String title;
+    private String writer;
+    private String writeTime;
+    private long readCnt;
+  }
+
   // 페이징 출력 DTO
   @Data
   @AllArgsConstructor
@@ -18,7 +25,7 @@ public class PostDto {
     private long prev;
     private long next;
     private List<Long> pages;
-    private List<Post> posts;
+    private List<PostList> posts;
   }
 
   // 글을 작성하는 DTO
@@ -53,11 +60,10 @@ public class PostDto {
     private String title;
     private String content;
     private String writer;
-    @JsonFormat(pattern="yyyy년 MM월 dd일 hh:mm:ss")
-    private LocalDateTime writeTime;
+    private String writeTime;
     private long readCnt;
     private long goodCnt;
     private long badCnt;
-    private List<Comment> comments;
+    private List<CommentDto.CommentResponse> comments;
   }
 }

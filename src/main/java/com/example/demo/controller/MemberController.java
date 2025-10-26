@@ -16,18 +16,16 @@ import org.springframework.web.servlet.mvc.support.*;
 
 import java.security.*;
 
-@Validated
 @Controller
 public class MemberController {
   @Autowired
   private MemberService memberService;
 
   @PreAuthorize("isAnonymous()")
-  @GetMapping("/member/signup")
-  public void signup() {
+  @GetMapping("/member/join")
+  public void join() {
   }
 
-  @PreAuthorize("isAnonymous()")
   @GetMapping("/member/login")
   public ModelAndView login(HttpSession session) {
     ModelAndView mav = new ModelAndView("member/login");
@@ -53,13 +51,6 @@ public class MemberController {
   public void changePassword() {
   }
 
-  @PreAuthorize("isAnonymous()")
-  @PutMapping("/member/activate")
-  public ModelAndView activate(@RequestParam(required=false) @NotEmpty(message="코드는 필수입력입니다") String code) {
-    memberService.activate(code);
-    return new ModelAndView("redirect:/member/login");
-  }
-
   @PreAuthorize("isAuthenticated()")
   @PostMapping("/member/check-password")
   public ModelAndView checkPassword(@RequestParam(required=false)  @NotEmpty(message="비밀번호는 필수입력입니다") String password, Principal principal, RedirectAttributes ra, HttpSession session) {
@@ -78,7 +69,7 @@ public class MemberController {
   public ModelAndView read(Principal principal, HttpSession session) {
     if(session.getAttribute("isPasswordCheck")==null)
       return new ModelAndView("redirect:/member/check-password");
-    MemberDto.Read dto = memberService.read(principal.getName());
+    MemberDto.MemberResponse dto = memberService.read(principal.getName());
     return new ModelAndView("member/read").addObject("member", dto);
   }
 

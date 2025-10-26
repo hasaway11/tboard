@@ -13,11 +13,9 @@ import org.apache.commons.lang3.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.mail.javamail.*;
 import org.springframework.security.crypto.password.*;
-import org.springframework.stereotype.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.*;
 
-import java.io.*;
 import java.util.*;
 
 @Service
@@ -32,7 +30,7 @@ public class MemberService {
 
   @PostConstruct
   public void init() {
-    defaultProfile = TBoardUtil.getDefaultBase64Profile();
+    defaultProfile = ProfileUtil.getDefaultBase64Profile();
   }
 
 
@@ -68,7 +66,7 @@ public class MemberService {
     boolean hasProfileImage = profile != null && !profile.isEmpty();
     String base64EncodedImage = defaultProfile;
     if(hasProfileImage)
-      base64EncodedImage = TBoardUtil.convertToBase64Profile(profile).orElse(defaultProfile);
+      base64EncodedImage = ProfileUtil.convertToBase64Profile(profile).orElse(defaultProfile);
 
     // 4. 엔티티 생성 및 저장
     Member member = dto.toEntity(encodedPassword, base64EncodedImage);
@@ -89,18 +87,12 @@ public class MemberService {
   }
 
   public MemberDto.MemberResponse read(String loginId) {
-    return memberDao.findByUsername(loginId).orElseThrow(MemberNotFoundException::new).toRead();
+    return memberDao.findByUsername(loginId).orElseThrow(MemberNotFoundException::new).toDto();
   }
 
   public void updateProfile(MultipartFile profile, String loginId) {
-    String base64EncodedImage = TBoardUtil.convertToBase64Profile(profile).orElseThrow(()->new JobFailException("프로필 이미지 처리 중 오류 발생"));
+    String base64EncodedImage = ProfileUtil.convertToBase64Profile(profile).orElseThrow(()->new JobFailException("프로필 이미지 처리 중 오류 발생"));
     memberDao.updateProfileByUsername(base64EncodedImage, loginId);
-  }
-
-  public void activate(String code) {
-    boolean isActive = memberDao.activateAccountByCode(code)==1;
-    if(!isActive)
-      throw new JobFailException("이미 활성화되었거나 잘못된 확인 코드입니다");
   }
 
   public boolean updatePassword(MemberDto.PasswordChangeRequest dto, String loginId) {

@@ -21,7 +21,7 @@ public class PostService {
   private static final long POSTS_PER_PAGE = 10;
   private static final long PAGES_PER_BLOCK = 5;
 
-  private PostDto.PageResponse toPageResponse(long pageno, long pagesize, long blocksize, long totalcount, List<Post> posts) {
+  private PostDto.PageResponse toPageResponse(long pageno, long pagesize, long blocksize, long totalcount, List<PostDto.PostList> posts) {
     long numberOfPages = (totalcount-1)/pagesize;
 
     long prev = (pageno-1)/blocksize * blocksize;
@@ -42,7 +42,7 @@ public class PostService {
 
   public PostDto.PageResponse list(long pageno, long pagesize) {
     long totalcount = postDao.count();
-    List<Post> posts = postDao.findAll(pageno, pagesize);
+    List<PostDto.PostList> posts = postDao.findAll(pageno, pagesize);
     return toPageResponse(pageno, POSTS_PER_PAGE, PAGES_PER_BLOCK, totalcount, posts);
   }
 
@@ -67,13 +67,15 @@ public class PostService {
     // 2. 작업자가 글쓴이가 아니면 예외
     if(!post.getWriter().equals(loginId))
       throw new JobFailException("잘못된 작업입니다");
-    postDao.updateByPno(dto;
+    postDao.updateByPno(dto);
   }
 
+  @Transactional
   public void delete(long pno, String loginId) {
     Post post = postDao.findByPno(pno).orElseThrow(PostNotFoundException::new);
     if(!post.getWriter().equals(loginId))
       throw new JobFailException("잘못된 작업있니다");
+    commentDao.deleteByPno(pno);
     postDao.deleteByPno(pno);
   }
 

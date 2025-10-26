@@ -15,7 +15,6 @@ import org.springframework.web.servlet.*;
 
 import java.security.*;
 
-@Validated
 @Controller
 public class PostController {
   @Autowired
@@ -58,7 +57,7 @@ public class PostController {
 
   @Validated
   @Secured("ROLE_USER")
-  @DeleteMapping("/post/delete")
+  @PostMapping("/post/delete")
   public ModelAndView delete(@RequestParam(required=false) @NotNull(message="글번호는 필수입력입니다") Integer pno, Principal principal) {
     postService.delete(pno, principal.getName());
     return new ModelAndView("redirect:/");
@@ -72,7 +71,7 @@ public class PostController {
   }
 
   @Secured("ROLE_USER")
-  @PutMapping("/api/post/good")
+  @PatchMapping("/api/post/good")
   public ResponseEntity<Long> good(@RequestParam(required=false) @NotNull(message="글번호는 필수입력입니다") Integer pno, Principal principal) {
     long newGoodCnt = postService.good(pno, principal.getName());
     return ResponseEntity.ok(newGoodCnt);

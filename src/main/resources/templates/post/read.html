@@ -19,7 +19,6 @@
     </nav>
     <main>
       <section>
-        <input type="hidden" th:value="${post.pno}" id="pno">
         <table class="table mt-3">
           <tr>
             <td>작성일</td>
@@ -36,7 +35,7 @@
           <tr>
             <td colspan="2">
               <div style="float:right;">
-              <button type="button" class="btn btn-primary" id="good_btn" th:disabled="${!isLogin or isWriter}" title="이글을 추천합니다"><i class="fa-regular fa-thumbs-up"></i><span class="badge bg-dark" id="good_cnt" th:text="${post.goodCnt}"></span></button>
+              <button type="button" class="btn btn-primary" id="good_btn" th:disabled="${!isLogin or isWriter}" title="이글을 추천합니다" onclick="doGood();"><i class="fa-regular fa-thumbs-up"></i><span class="badge bg-dark" id="good_cnt" th:text="${post.goodCnt}"></span></button>
               <button type="button" class="btn btn-success" id="b" disabled>조회 <span class="badge bg-danger" th:text="${post.readCnt}"></span></button>
               <button type="button" class="btn btn-danger" id="bad_btn" disabled>비추<span class="badge bg-dark"></span></button>
               </div>
@@ -81,7 +80,7 @@
     </footer>
   </div>
   <script th:inline="javascript">
-    const msg = [[${ #authentication.name}]];
+    const pno = [[${ post.pno }]];
   </script>
   <script>
     function printComments($target, comments) {
@@ -105,7 +104,6 @@
     }
 
     async function doWriteComment() {
-      const pno = $('#pno').val();
       const content = $('#comment-content').val();
       $('#comment-content').val('');
       const params = {pno:pno, content:content};
@@ -119,7 +117,6 @@
     }
 
     async function deleteComment(cno) {
-      const pno = $('#pno').val();
       const params = {pno:pno, cno:cno};
       try {
         const response = await axios.delete('/api/comments', {params});
@@ -132,13 +129,23 @@
     }
 
     function doDelete() {
-      const pno = $('#pno').val();
       const form = `
         <form action='/post/delete' method='post'>
-          <input type='hidden' value='${pno}'>
+          <input type='hidden' name='pno' value='${pno}'>
         </form>
       `;
       $(form).appendTo($('body')).submit();
+    }
+
+    async function doGood() {
+      const params = {pno};
+      try {
+        const response = await axios.patch("/api/post/good", new URLSearchParams(params));
+        const newGoodCnt = response.data;
+        $('#good_cnt').text(newGoodCnt);
+      } catch(err) {
+        console.log(err);
+      }
     }
   </script>
 </body>

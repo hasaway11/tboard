@@ -1,7 +1,6 @@
 package com.example.demo.dto;
 
 import com.example.demo.entity.*;
-import com.example.demo.util.validation.Password;
 import com.fasterxml.jackson.annotation.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -22,8 +21,8 @@ public class MemberDto {
     @NotEmpty(message="아이디는 필수입력입니다")
     @Pattern(regexp="^[a-z0-9]{6,10}$", message="아이디는 소문자와 숫자 6~10자입니다")
     private String username;
+    @NotEmpty(message="비밀번호는 필수입력입니다")
     @Pattern(regexp="^[a-zA-Z0-9]{6,10}$", message="비밀번호는 영숫자 6~10자입니다")
-    @Password
     private String password;
     @NotEmpty(message="이메일은 필수입력입니다")
     @Email

@@ -1,16 +1,13 @@
 package com.example.demo.util;
 
-import com.example.demo.dto.*;
-import com.example.demo.entity.*;
 import org.springframework.http.*;
 import org.springframework.web.multipart.*;
 
 import java.io.*;
 import java.util.*;
 
-public class TBoardUtil {
-  private static final String PROFLILE_FOLDER = System.getProperty("user.dir") + File.separator + "upload"
-      + File.separator + "profile" + File.separator;
+public class ProfileUtil {
+  private static final String PROFLILE_FOLDER = System.getProperty("user.dir") + File.separator + "upload" + File.separator + "profile" + File.separator;
   private static final String PROFILE_NAME = "default.jpg";
 
   public static Optional<String> convertToBase64Profile(MultipartFile file) {

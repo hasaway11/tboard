@@ -8,12 +8,6 @@
   <script src="https://code.jquery.com/jquery-3.7.1.slim.js"></script>
   <link href="/main.css" rel="stylesheet">
   <title>Document</title>
-  <script th:inline="javascript">
-    const msg = [[${msg}]];
-    if (msg!==null) {
-        alert(msg);
-    }
-  </script>
   <style>
     .pagination {
       justify-content:center;
@@ -70,12 +64,5 @@
     <footer th:replace="~{/fragment/footer.html}">
     </footer>
   </div>
-  <script>
-    // ?에러코드에 대한 처리
-    const error = location.search.substring(1);
-    if(error==='404') {
-        alert("글을 찾지 못했습니다");
-    }
-  </script>
 </body>
 </html>

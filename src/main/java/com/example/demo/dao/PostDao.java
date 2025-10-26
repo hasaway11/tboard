@@ -10,7 +10,7 @@ import java.util.*;
 public interface PostDao {
   long insert(Post post);
 
-  List<Post> findAll(long pageno, long pagesize);
+  List<PostDto.PostList> findAll(long pageno, long pagesize);
 
   @Select("select count(*) from post")
   long count();

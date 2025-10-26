@@ -31,9 +31,9 @@ public class Member {
   @Builder.Default
   private boolean isLock = false;
 
-  public MemberDto.Read toRead() {
+  public MemberDto.MemberResponse toDto() {
     long days = ChronoUnit.DAYS.between(joinDay, LocalDate.now());
-    return new MemberDto.Read(username, email, profile, joinDay, days, level);
+    return new MemberDto.MemberResponse(username, email, profile, joinDay, days, level);
   }
 }
 
