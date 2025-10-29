@@ -77,6 +77,7 @@ public class ProfileRestController {
   @PreAuthorize("isAuthenticated()")
   @PatchMapping("/api/member/profile")
   public ResponseEntity<String> changeProfile(@RequestParam String profile, Principal principal) {
+    System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
     memberService.updateProfile(profile, principal.getName());
     return ResponseEntity.ok("프로필 사진을 변경했습니다");
   }

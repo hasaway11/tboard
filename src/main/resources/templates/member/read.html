@@ -28,7 +28,7 @@
                   <input type="hidden" id="profile-name" name="profile">
                 </div>
                 <div class="mb-3 mt-3">
-                  <input type="file" id="profile" name="profile" accept=".jpg,.jpeg,.png" class="form-control" onchange="showProfile();">
+                  <input type="file" id="profile" accept=".jpg,.jpeg,.png" class="form-control" onchange="showProfile();">
                 </div>
                 <div class="mb-3 mt-3">
                   <button class="btn btn-dark form-control" onclick="changeProfile();">변경하기</button>
@@ -65,6 +65,14 @@
   </div>
   <script>
     async function showProfile() {
+      const profile = $('#profile')[0].files[0];
+      const maxSize = 1024*1024;
+      if(profile.size>maxSize) {
+        alert('프로필 사진은 1MB이하여야 합니다');
+        $('#profile')[0].files[0]='';
+        return;
+      }
+
       const formData = new FormData();
       formData.append("profile", $('#profile')[0].files[0]);
       try {
@@ -76,14 +84,20 @@
       }
     }
 
-    function changeProfile() {
+    async function changeProfile() {
       const profile = $('#profile-name').val();
       if(profile=='') {
         alert("새로운 프로필을 선택하지 않았습니다");
         return;
       }
+
+      const params = {profile: profile};
       try {
-        axios.post("
+        await axios.patch("/api/member/profile", new URLSearchParams(params));
+        alert("프로필을 변경했습니다");
+        $('#profile')[0].files[0]='';
+      } catch(err) {
+        location.reload();
       }
     }
 

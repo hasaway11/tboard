@@ -80,6 +80,14 @@
     }
 
     async function showProfile() {
+      const profile = $('#profile')[0].files[0];
+      const maxSize = 1024*1024;
+      if(profile.size>maxSize) {
+        alert('프로필 사진은 1MB이하여야 합니다');
+        $('#profile')[0].files[0]='';
+        return;
+      }
+
       const formData = new FormData();
       formData.append("profile", $('#profile')[0].files[0]);
       try {
