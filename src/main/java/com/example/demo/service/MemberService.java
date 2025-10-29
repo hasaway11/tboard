@@ -16,6 +16,10 @@ import org.springframework.security.crypto.password.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.*;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 
 @Service
@@ -53,25 +57,26 @@ public class MemberService {
   }
 
   public void join(MemberDto.CreateRequest dto) {
-    // 1. Guard Clause: 아이디 중복 확인 및 즉시 종료
-    if(memberDao.existsByUsername(dto.getUsername()))
-      throw new JobFailException("가입처리가 불가능한 아이디입니다");
+    String uploadProfileName = dto.getProfile();
+    String profileName = "";
+    System.out.println(dto);
+    if(!dto.getProfile().equals("")) {
+      File origin = new File(TBoardConstant.TEMP_FOLDER, uploadProfileName);
+      String ext = uploadProfileName.substring(uploadProfileName.lastIndexOf("."));
+      profileName = dto.getUsername() + ext;
+      File dest = new File(TBoardConstant.PROFILE_FOLDER, profileName);
+      try {
+        Files.move(origin.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }
 
-    // 2. 비밀번호 인코딩
     String encodedPassword = encoder.encode(dto.getPassword());
-
-    // 3. 프로필 이미지 Base64 처리
-    MultipartFile profile = dto.getProfile();
-    // 프로필 파일이 유효한지 확인
-    boolean hasProfileImage = profile != null && !profile.isEmpty();
-    String base64EncodedImage = defaultProfile;
-    if(hasProfileImage)
-      base64EncodedImage = ProfileUtil.convertToBase64Profile(profile).orElse(defaultProfile);
-
-    // 4. 엔티티 생성 및 저장
-    Member member = dto.toEntity(encodedPassword, base64EncodedImage);
+    Member member = dto.toEntity(encodedPassword, profileName);
     memberDao.insert(member);
   }
+
 
   public Optional<String> searchUsername(String email) {
     return memberDao.findUsernameByEmail(email);

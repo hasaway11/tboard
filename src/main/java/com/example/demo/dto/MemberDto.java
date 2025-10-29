@@ -27,7 +27,7 @@ public class MemberDto {
     @NotEmpty(message="이메일은 필수입력입니다")
     @Email
     private String email;
-    private MultipartFile profile;
+    private String profile;
 
     public Member toEntity(String encodedPassword, String base64Image) {
       return Member.builder().username(username).password(encodedPassword).email(email).profile(base64Image).isLock(false).build();

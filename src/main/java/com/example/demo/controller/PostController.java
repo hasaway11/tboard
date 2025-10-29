@@ -13,6 +13,7 @@ import org.springframework.validation.annotation.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.*;
 
+import java.io.File;
 import java.security.*;
 
 @Controller
@@ -22,6 +23,8 @@ public class PostController {
 
   @GetMapping("/")
   public ModelAndView list(@RequestParam(defaultValue="1") Long pageno, @RequestParam(defaultValue="10") Long pagesize, HttpSession session) {
+    String TEMP_FOLDER = System.getProperty("user.dir") + File.separator + "upload" + File.separator + "profile" + File.separator;
+    System.out.println(TEMP_FOLDER);
     PostDto.PageResponse page = postService.list(pageno, pagesize);
     ModelAndView mav = new ModelAndView("post/list").addObject("page", page);
     if(session.getAttribute("msg")!=null) {
