@@ -33,7 +33,7 @@ public class Member {
 
   public MemberDto.MemberResponse toDto() {
     long days = ChronoUnit.DAYS.between(joinDay, LocalDate.now());
-    return new MemberDto.MemberResponse(username, email, profile, joinDay, days, level);
+    return new MemberDto.MemberResponse(username, email, "/profile/" + profile, profile, joinDay, days, level);
   }
 }
 

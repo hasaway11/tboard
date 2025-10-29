@@ -59,7 +59,6 @@ public class MemberService {
   public void join(MemberDto.CreateRequest dto) {
     String uploadProfileName = dto.getProfile();
     String profileName = "";
-    System.out.println(dto);
     if(!dto.getProfile().equals("")) {
       File origin = new File(TBoardConstant.TEMP_FOLDER, uploadProfileName);
       String ext = uploadProfileName.substring(uploadProfileName.lastIndexOf("."));
@@ -75,6 +74,21 @@ public class MemberService {
     String encodedPassword = encoder.encode(dto.getPassword());
     Member member = dto.toEntity(encodedPassword, profileName);
     memberDao.insert(member);
+  }
+
+  public void updateProfile(String profile, String loginId) {
+    File origin = new File(TBoardConstant.TEMP_FOLDER, profile);
+    String ext = profile.substring(profile.lastIndexOf("."));
+    String profileName = loginId + ext;
+    File dest = new File(TBoardConstant.PROFILE_FOLDER, profileName);
+    String currentProfileName = memberDao.findProfileByUsername(loginId);
+
+    try {
+      Files.move(origin.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    memberDao.updateProfileByUsername(profileName, loginId);
   }
 
 
@@ -93,11 +107,6 @@ public class MemberService {
 
   public MemberDto.MemberResponse read(String loginId) {
     return memberDao.findByUsername(loginId).orElseThrow(MemberNotFoundException::new).toDto();
-  }
-
-  public void updateProfile(MultipartFile profile, String loginId) {
-    String base64EncodedImage = ProfileUtil.convertToBase64Profile(profile).orElseThrow(()->new JobFailException("프로필 이미지 처리 중 오류 발생"));
-    memberDao.updateProfileByUsername(base64EncodedImage, loginId);
   }
 
   public boolean updatePassword(MemberDto.PasswordChangeRequest dto, String loginId) {

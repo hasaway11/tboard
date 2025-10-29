@@ -38,6 +38,9 @@ public interface MemberDao {
 
   @Select("select password from member where username=#{username}")
   String findPasswordByUsername(String username);
+
+  @Select("select profile from member where username=#{username}")
+  String findProfileByUsername(String username);
 }
 
 

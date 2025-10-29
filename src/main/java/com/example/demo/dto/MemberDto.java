@@ -4,7 +4,6 @@ import com.example.demo.entity.*;
 import com.fasterxml.jackson.annotation.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
-import org.springframework.web.multipart.*;
 
 import java.time.*;
 
@@ -46,7 +45,8 @@ public class MemberDto {
   public static class MemberResponse {
     private String username;
     private String email;
-    private String profile;
+    private String profileUrl;
+    private String profileName;
     @JsonFormat(pattern="yyyy년 MM월 dd일")
     private LocalDate joinDay;
     // 가입기간

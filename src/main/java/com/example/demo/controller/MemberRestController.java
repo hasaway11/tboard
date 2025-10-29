@@ -49,10 +49,4 @@ public class MemberRestController {
     return ResponseEntity.ok("임시비밀번호를 가입 이메일로 보냈습니다");
   }
 
-  @PreAuthorize("isAuthenticated()")
-  @PatchMapping("/api/member/profile")
-  public ResponseEntity<String> changeProfile(@RequestParam(required=false) @NotNull(message="프로필 사진은 필수입력입니다") MultipartFile profile, Principal principal) {
-    memberService.updateProfile(profile, principal.getName());
-    return ResponseEntity.ok("프로필 사진을 변경했습니다");
-  }
 }

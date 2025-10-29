@@ -1,24 +1,25 @@
 package com.example.demo.controller;
 
-import com.example.demo.util.TBoardConstant;
-import jakarta.annotation.PostConstruct;
-import jakarta.validation.constraints.NotNull;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
+import com.example.demo.service.*;
+import com.example.demo.util.*;
+import jakarta.annotation.*;
+import jakarta.validation.constraints.*;
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.http.*;
+import org.springframework.security.access.prepost.*;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.*;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.Map;
+import java.io.*;
+import java.nio.file.*;
+import java.security.*;
+import java.util.*;
 
 @RestController
 public class ProfileRestController {
+  @Autowired
+  private MemberService memberService;
+
   @PostConstruct
   public void makeFolder() {
     File tempFolder = new File(TBoardConstant.TEMP_FOLDER);
@@ -44,26 +45,39 @@ public class ProfileRestController {
     return ResponseEntity.ok(map);
   }
 
-  @GetMapping("/temp/{filename}")
-  public ResponseEntity<byte[]> getTempProfile(@PathVariable String filename) {
+  private ResponseEntity<byte[]> readProfile(String fileName, String folderName) {
     try {
       // 1. 파일을 byte 배열로 읽기
-      File file = new File(TBoardConstant.TEMP_FOLDER, filename);
+      File file = new File(folderName, fileName);
       byte[] imageBytes = Files.readAllBytes(file.toPath());
-
       // 2. 이미지 타입 확인
       String contentType = "image/jpeg"; // 기본값
-      if (filename.endsWith(".png")) {
+      if (fileName.endsWith(".png")) {
         contentType = "image/png";
-      } else if (filename.endsWith(".gif")) {
+      } else if (fileName.endsWith(".gif")) {
         contentType = "image/gif";
       }
-
       // 3. ResponseEntity로 반환
       return ResponseEntity.ok().contentType(MediaType.parseMediaType(contentType)).body(imageBytes);
-
     } catch (IOException e) {
       return ResponseEntity.notFound().build();
     }
+  }
+
+  @GetMapping("/temp/{fileName}")
+  public ResponseEntity<byte[]> getTempProfile(@PathVariable String fileName) {
+    return readProfile(fileName, TBoardConstant.TEMP_FOLDER);
+  }
+
+  @GetMapping("/profile/{fileName}")
+  public ResponseEntity<byte[]> getProfile(@PathVariable String fileName) {
+    return readProfile(fileName, TBoardConstant.PROFILE_FOLDER);
+  }
+
+  @PreAuthorize("isAuthenticated()")
+  @PatchMapping("/api/member/profile")
+  public ResponseEntity<String> changeProfile(@RequestParam String profile, Principal principal) {
+    memberService.updateProfile(profile, principal.getName());
+    return ResponseEntity.ok("프로필 사진을 변경했습니다");
   }
 }
