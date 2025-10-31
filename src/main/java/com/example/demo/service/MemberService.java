@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.*;
 import org.springframework.mail.javamail.*;
 import org.springframework.security.crypto.password.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.*;
 import org.springframework.web.multipart.*;
 
 import java.io.File;
@@ -29,50 +30,47 @@ public class MemberService {
   @Autowired
   private PasswordEncoder encoder;
   @Autowired
-  private JavaMailSender mailSender;
-  private String defaultProfile;
-
-  @PostConstruct
-  public void init() {
-    defaultProfile = ProfileUtil.getDefaultBase64Profile();
-  }
-
+  private MailUtil mailUtil;
 
   public boolean checkUsername(MemberDto.UsernameCheckRequest dto) {
     return !memberDao.existsByUsername(dto.getUsername());
   }
 
-  public void sendMail(String from, String to, String title, String text) {
-    MimeMessage message = mailSender.createMimeMessage();
-    try {
-      MimeMessageHelper helper = new MimeMessageHelper(message, false, "utf-8");
-      helper.setFrom(from);
-      helper.setTo(to);
-      helper.setSubject(title);
-      helper.setText(text, true);
-      mailSender.send(message);
-    } catch (MessagingException e) {
-      e.printStackTrace();
-    }
-  }
-
   public void join(MemberDto.CreateRequest dto) {
-    String uploadProfileName = dto.getProfile();
-    String profileName = "";
-    if(!dto.getProfile().equals("")) {
-      File origin = new File(TBoardConstant.TEMP_FOLDER, uploadProfileName);
-      String ext = uploadProfileName.substring(uploadProfileName.lastIndexOf("."));
-      profileName = dto.getUsername() + ext;
-      File dest = new File(TBoardConstant.PROFILE_FOLDER, profileName);
-      try {
-        Files.move(origin.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
+    boolean 기본프사_사용 = false;
+    String profile = dto.getProfile();
+    File source = null;
+
+    if(profile==null || profile.isEmpty()) {
+      기본프사_사용 = true;
+    } else {
+      source = new File(TBoardConstant.TEMP_FOLDER, profile);
+      if (source.exists() == false) {
+        기본프사_사용 = true;
       }
     }
 
+    if(기본프사_사용) {
+      profile = "default.webp";
+      source = new File(TBoardConstant.PROFILE_FOLDER, profile);
+    }
+
+    int 점의_위치 = profile.lastIndexOf(".");
+    String 확장자 = profile.substring(점의_위치);
+    String 저장_파일명 = dto.getUsername() + 확장자;
+    File dest = new File(TBoardConstant.PROFILE_FOLDER, 저장_파일명);
+
+    try {
+      FileCopyUtils.copy(source, dest);
+      if(기본프사_사용==false) {
+        source.delete();
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
     String encodedPassword = encoder.encode(dto.getPassword());
-    Member member = dto.toEntity(encodedPassword, profileName);
+    Member member = dto.toEntity(encodedPassword, 저장_파일명);
     memberDao.insert(member);
   }
 
@@ -102,7 +100,7 @@ public class MemberService {
     memberDao.updatePasswordByUsername(dto.getUsername(), encoder.encode(newPassword));
     String html = "<p>아래 임시비밀번호로 로그인하세요</p>";
     html+= "<p>" + newPassword  + "</p>";
-    sendMail("admin@icia.com", member.getEmail(), "임시비밀번호", html);
+    mailUtil.sendMail("admin@icia.com", member.getEmail(), "임시비밀번호", html);
   }
 
   public MemberDto.MemberResponse read(String loginId) {

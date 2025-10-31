@@ -22,11 +22,14 @@ public class ProfileRestController {
 
   @PostConstruct
   public void makeFolder() {
+    File uploadFolder = new File(TBoardConstant.UPLOAD_FOLDER);
     File tempFolder = new File(TBoardConstant.TEMP_FOLDER);
     File profileFolder = new File(TBoardConstant.PROFILE_FOLDER);
-    if(!tempFolder.exists())
+    if(uploadFolder.exists()==false)
+      uploadFolder.mkdir();
+    if(tempFolder.exists()==false)
       tempFolder.mkdir();
-    if(!profileFolder.exists())
+    if(profileFolder.exists()==false)
       profileFolder.mkdir();
   }
 
@@ -47,18 +50,10 @@ public class ProfileRestController {
 
   private ResponseEntity<byte[]> readProfile(String fileName, String folderName) {
     try {
-      // 1. 파일을 byte 배열로 읽기
       File file = new File(folderName, fileName);
       byte[] imageBytes = Files.readAllBytes(file.toPath());
-      // 2. 이미지 타입 확인
-      String contentType = "image/jpeg"; // 기본값
-      if (fileName.endsWith(".png")) {
-        contentType = "image/png";
-      } else if (fileName.endsWith(".gif")) {
-        contentType = "image/gif";
-      }
-      // 3. ResponseEntity로 반환
-      return ResponseEntity.ok().contentType(MediaType.parseMediaType(contentType)).body(imageBytes);
+      MediaType mediaType = ProfileUtil.getMediaType(fileName);
+      return ResponseEntity.ok().contentType(mediaType).body(imageBytes);
     } catch (IOException e) {
       return ResponseEntity.notFound().build();
     }
@@ -77,7 +72,6 @@ public class ProfileRestController {
   @PreAuthorize("isAuthenticated()")
   @PatchMapping("/api/member/profile")
   public ResponseEntity<String> changeProfile(@RequestParam String profile, Principal principal) {
-    System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
     memberService.updateProfile(profile, principal.getName());
     return ResponseEntity.ok("프로필 사진을 변경했습니다");
   }
